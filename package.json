@@ -1,0 +1,17 @@
+{
+  "name": "envio-canciones",
+  "version": "1.0.0",
+  "description": "Envía una canción por día durante 30 días por WhatsApp",
+  "type": "module",
+  "scripts": {
+    "login": "node src/send.js --login",
+    "enviar": "node src/send.js",
+    "prueba": "node src/send.js --dry-run"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.9",
+    "pino": "^9.0.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
