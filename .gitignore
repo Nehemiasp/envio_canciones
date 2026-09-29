@@ -1,4 +1,5 @@
 node_modules/
 auth/
 estado.json
+actividad.json
 .env

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎵 Envío Canciones — Dashboard</title>
+  <meta name="description" content="Panel de control para enviar canciones diarias por WhatsApp" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Toast container -->
+  <div id="toast-container"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">🎵</span>
+        <div>
+          <h1>Envío Canciones</h1>
+          <p class="subtitle">Dashboard de control</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="scheduler-badge" id="scheduler-badge">
+          <span class="sched-dot" id="sched-dot"></span>
+          <span class="sched-text" id="sched-text">Scheduler inactivo</span>
+        </div>
+        <div class="header-status" id="header-status">
+          <span class="status-dot"></span>
+          <span class="status-text">Cargando...</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- Status cards row -->
+    <section class="stats-row" id="stats-row">
+      <div class="stat-card stat-day">
+        <div class="stat-icon">📅</div>
+        <div class="stat-info">
+          <span class="stat-value" id="stat-dia">—</span>
+          <span class="stat-label">Día actual</span>
+        </div>
+      </div>
+      <div class="stat-card stat-sent">
+        <div class="stat-icon">✉️</div>
+        <div class="stat-info">
+          <span class="stat-value" id="stat-ultimo">—</span>
+          <span class="stat-label">Último envío</span>
+        </div>
+      </div>
+      <div class="stat-card stat-songs">
+        <div class="stat-icon">🎶</div>
+        <div class="stat-info">
+          <span class="stat-value" id="stat-canciones">—</span>
+          <span class="stat-label">Canciones</span>
+        </div>
+      </div>
+      <div class="stat-card stat-phone">
+        <div class="stat-icon">📱</div>
+        <div class="stat-info">
+          <span class="stat-value" id="stat-numero">—</span>
+          <span class="stat-label">Destino</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Three column layout -->
+    <div class="grid-layout">
+      <!-- Left: Config + scheduler -->
+      <section class="panel-col-left">
+        <!-- Config panel -->
+        <div class="panel panel-config">
+          <div class="panel-header">
+            <h2>⚙️ Configuración</h2>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label for="input-numero">Número de destino</label>
+              <div class="input-with-icon">
+                <span class="input-icon">📱</span>
+                <input type="text" id="input-numero" placeholder="Ej: 569XXXXXXXX" autocomplete="off" />
+              </div>
+              <small>Con código de país, sin + ni espacios</small>
+            </div>
+            <div class="form-group">
+              <label for="input-fecha">Fecha de inicio</label>
+              <div class="input-with-icon">
+                <span class="input-icon">📅</span>
+                <input type="date" id="input-fecha" />
+              </div>
+              <small>Primer día del envío</small>
+            </div>
+            <button class="btn btn-primary btn-full" id="btn-save-config">
+              <span>Guardar configuración</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Scheduler panel -->
+        <div class="panel panel-scheduler">
+          <div class="panel-header">
+            <h2>⏰ Programador</h2>
+          </div>
+          <div class="panel-body">
+            <div class="scheduler-toggle-row">
+              <label class="toggle-label" for="toggle-scheduler">Envío automático</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggle-scheduler" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="form-group" style="margin-top: 1rem;">
+              <label for="input-hora">Hora de envío diario</label>
+              <div class="input-with-icon">
+                <span class="input-icon">🕐</span>
+                <input type="time" id="input-hora" value="09:00" />
+              </div>
+              <small>Se enviará a esta hora todos los días</small>
+            </div>
+            <button class="btn btn-primary btn-full" id="btn-save-scheduler">
+              <span>Guardar horario</span>
+            </button>
+            <div class="next-send-info" id="next-send-info" style="display: none;">
+              <span class="next-icon">🚀</span>
+              <div>
+                <div class="next-label">Próximo envío</div>
+                <div class="next-value" id="next-send-time">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions panel -->
+        <div class="panel panel-actions">
+          <div class="panel-header">
+            <h2>🚀 Acciones</h2>
+          </div>
+          <div class="panel-body">
+            <button class="btn btn-outline-accent btn-full" id="btn-test-send">
+              <span>🧪 Envío de prueba</span>
+            </button>
+            <button class="btn btn-accent-solid btn-full" id="btn-real-send" style="margin-top: 0.5rem;">
+              <span>📤 Enviar ahora</span>
+            </button>
+            <div class="send-output" id="send-output" style="display: none;"></div>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2>📊 Progreso</h2>
+          </div>
+          <div class="panel-body">
+            <div class="progress-bar-container">
+              <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="progress-label" id="progress-label">0 / 30 días</div>
+            <div class="progress-detail" id="progress-detail"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Songs list -->
+      <section class="panel panel-songs">
+        <div class="panel-header">
+          <h2>🎵 Canciones <span class="badge" id="songs-count">0</span></h2>
+          <button class="btn btn-accent" id="btn-add-song">
+            <span>＋ Agregar</span>
+          </button>
+        </div>
+        <div class="panel-body songs-body">
+          <div class="songs-list" id="songs-list"></div>
+          <div class="empty-state" id="empty-state" style="display:none;">
+            <span class="empty-icon">🎼</span>
+            <p>No hay canciones aún</p>
+            <p class="empty-sub">Agrega tu primera canción para comenzar</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Activity Log -->
+    <section class="panel panel-log" style="margin-top: 1.5rem;">
+      <div class="panel-header">
+        <h2>📝 Actividad reciente</h2>
+        <button class="btn btn-ghost btn-sm" id="btn-refresh-log">Actualizar</button>
+      </div>
+      <div class="panel-body log-body">
+        <div class="log-list" id="log-list">
+          <div class="log-empty">Sin actividad registrada</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal add/edit -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <h3 id="modal-title">Agregar canción</h3>
+        <button class="modal-close" id="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="m-titulo">Título *</label>
+          <input type="text" id="m-titulo" placeholder="Nombre de la canción" />
+        </div>
+        <div class="form-group">
+          <label for="m-artista">Artista *</label>
+          <input type="text" id="m-artista" placeholder="Nombre del artista" />
+        </div>
+        <div class="form-group">
+          <label for="m-url">URL (Spotify, YouTube, etc.)</label>
+          <input type="url" id="m-url" placeholder="https://open.spotify.com/track/..." />
+        </div>
+        <div class="form-group">
+          <label for="m-dedicatoria">Dedicatoria</label>
+          <textarea id="m-dedicatoria" rows="3" placeholder="Un mensaje especial... 💛"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="modal-cancel">Cancelar</button>
+        <button class="btn btn-primary" id="modal-save">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete confirm -->
+  <div class="modal-overlay" id="delete-overlay">
+    <div class="modal modal-small">
+      <div class="modal-header">
+        <h3>Eliminar canción</h3>
+        <button class="modal-close" id="delete-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="delete-msg">¿Estás seguro de que deseas eliminar esta canción?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="delete-cancel">Cancelar</button>
+        <button class="btn btn-danger" id="delete-confirm">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Send confirm -->
+  <div class="modal-overlay" id="send-overlay">
+    <div class="modal modal-small">
+      <div class="modal-header">
+        <h3>Confirmar envío</h3>
+        <button class="modal-close" id="send-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>⚠️ Esto enviará la canción de hoy por WhatsApp al número configurado. ¿Continuar?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="send-cancel">Cancelar</button>
+        <button class="btn btn-primary" id="send-confirm">📤 Enviar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
